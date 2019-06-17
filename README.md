@@ -1,4 +1,4 @@
-# Jenkins in Docker with Docker sock
+# Jenkins in docker for build docker containers in docker 
 
 ## Badges
 
