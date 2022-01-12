@@ -20,7 +20,7 @@ pipeline {
 
         stage("Prepare build image") {
             steps {
-                sh "docker build -f Dockerfile.build . -t project-build:${DOCKER_IMAGE_BRANCH} ."
+                sh "docker build -f Dockerfile.build . -t project-build:${DOCKER_IMAGE_BRANCH}"
             }
         }
 
