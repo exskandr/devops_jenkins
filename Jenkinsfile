@@ -1,14 +1,12 @@
-def DOCKER_IMAGE_BRANCH = ""
-def GIT_COMMIT_HASH = ""
+pipeline {
 
-pipeline { 
     options {
-        buildDiscarder(
-            logRotator(
-                artifactDaysToKeepStr: "",
-                artifactNumToKeepStr: "",
-                daysToKeepStr: "",
-                numToKeepStr: "10"
+        buildDiscarder (
+            logRotator (
+                artifactDaysToKeepStr: '',
+                artifactNumToKeepStr: '',
+                daysToKeepStr: '',
+                numToKeepStr: '1'
             )
         )
         disableConcurrentBuilds()
@@ -17,33 +15,40 @@ pipeline {
     agent any
 
     stages {
-
-        stage("Prepare build image") {
-            steps {
-                sh "docker build -f Dockerfile.build . -t project-build:${DOCKER_IMAGE_BRANCH}"
-            }
-        }
-
-        stage("Build project") {
+        stage('Install dependencies') {
             agent {
-                docker {
-                    image "project-build:${DOCKER_IMAGE_BRANCH}"
-                    args "-v ${PWD}:/usr/src/app -w /usr/src/app"
+                dockerfile {
+                    filename 'Dockerfile.build'
+                    args '-v ${PWD}:/usr/src/app -w /usr/src/app'
+                    label 'build-image'
                     reuseNode true
-                    label "build-image"
                 }
             }
             steps {
-                sh "yarn"
-                sh "yarn build"
+                sh 'yarn'
+                sh 'cd src && yarn'
             }
         }
 
-    post {
-        always {
-            step([$class: "WsCleanup"])
-            cleanWs()
+
+        stage('Run tests') {
+            agent {
+                dockerfile {
+                    filename 'Dockerfile.build'
+                    args '-v ${PWD}:/usr/src/app -w /usr/src/app'
+                    label 'build-image'
+                    reuseNode true
+                }
+            }
+            steps {
+                sh 'yarn test'
+            }
         }
     }
 
+    post {
+        always {
+            cleanWs()
+        }
+    }
 }
