@@ -33,6 +33,7 @@ pipeline {
                     label "build-image"
                 }
             }
+        }
             steps {
                 sh "yarn"
                 sh "yarn build"
