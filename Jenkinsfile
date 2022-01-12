@@ -38,6 +38,7 @@ pipeline {
                 sh "yarn build"
             }
         }
+    }
 
     post {
         always {
@@ -46,5 +47,4 @@ pipeline {
         }
     }
 
-}
 }
