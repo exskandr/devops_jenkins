@@ -1,12 +1,14 @@
-pipeline {
+ef DOCKER_IMAGE_BRANCH = ""
+def GIT_COMMIT_HASH = ""
 
+pipeline { 
     options {
-        buildDiscarder (
-            logRotator (
-                artifactDaysToKeepStr: '',
-                artifactNumToKeepStr: '',
-                daysToKeepStr: '',
-                numToKeepStr: '1'
+        buildDiscarder(
+            logRotator(
+                artifactDaysToKeepStr: "",
+                artifactNumToKeepStr: "",
+                daysToKeepStr: "",
+                numToKeepStr: "10"
             )
         )
         disableConcurrentBuilds()
@@ -15,40 +17,34 @@ pipeline {
     agent any
 
     stages {
-        stage('Install dependencies') {
-            agent {
-                dockerfile {
-                    filename 'Dockerfile.build'
-                    args '-v ${PWD}:/usr/src/app -w /usr/src/app'
-                    label 'build-image'
-                    reuseNode true
-                }
-            }
+
+        stage("Prepare build image") {
             steps {
-                sh 'yarn'
-                sh 'cd src && yarn'
+                sh "docker build -f Dockerfile.build . -t project-build:${DOCKER_IMAGE_BRANCH}"
             }
         }
 
-
-        stage('Run tests') {
+        stage("Build project") {
             agent {
-                dockerfile {
-                    filename 'Dockerfile.build'
-                    args '-v ${PWD}:/usr/src/app -w /usr/src/app'
-                    label 'build-image'
+                docker {
+                    image "project-build:${DOCKER_IMAGE_BRANCH}"
+                    args "-v ${PWD}:/usr/src/app -w /usr/src/app"
                     reuseNode true
+                    label "build-image"
                 }
             }
             steps {
-                sh 'yarn test'
+                sh "yarn"
+                sh "yarn build"
             }
         }
-    }
 
     post {
         always {
+            step([$class: "WsCleanup"])
             cleanWs()
         }
     }
+
+}
 }
