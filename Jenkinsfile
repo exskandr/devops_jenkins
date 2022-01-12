@@ -1,4 +1,4 @@
-ef DOCKER_IMAGE_BRANCH = ""
+def DOCKER_IMAGE_BRANCH = ""
 def GIT_COMMIT_HASH = ""
 
 pipeline { 
@@ -33,13 +33,11 @@ pipeline {
                     label "build-image"
                 }
             }
-        }
             steps {
                 sh "yarn"
                 sh "yarn build"
             }
         }
-    }
 
     post {
         always {
@@ -47,3 +45,5 @@ pipeline {
             cleanWs()
         }
     }
+
+}
