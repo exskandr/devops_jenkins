@@ -1,5 +1,5 @@
-def DOCKER_IMAGE_BRANCH = "111"
-def GIT_COMMIT_HASH = "!!!"
+def DOCKER_IMAGE_BRANCH = ""
+def GIT_COMMIT_HASH = ""
 
 pipeline { 
     options {
